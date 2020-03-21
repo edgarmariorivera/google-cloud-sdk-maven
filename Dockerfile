@@ -1,4 +1,4 @@
-FROM docker:17.12.0-ce as static-docker-source
+FROM docker:19.03.8 as static-docker-source
 
 FROM debian:stretch
 
@@ -6,7 +6,7 @@ FROM adoptopenjdk/openjdk11
 
 FROM maven:slim
 
-ARG CLOUD_SDK_VERSION=232.0.0
+ARG CLOUD_SDK_VERSION=278.0.0
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
