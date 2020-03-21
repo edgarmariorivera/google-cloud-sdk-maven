@@ -1,4 +1,4 @@
-FROM docker:19.03.8 as static-docker-source
+FROM docker:17.12.0-ce as static-docker-source
 
 FROM debian:stretch
 
