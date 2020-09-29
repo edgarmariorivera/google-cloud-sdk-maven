@@ -1,32 +1,7 @@
-FROM docker:17.12.0-ce as static-docker-source
-FROM debian:stretch
-FROM adoptopenjdk/openjdk11
-FROM maven:3.6.3-jdk-11-slim
-
-ARG CLOUD_SDK_VERSION=311.0.0
-ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
-ENV PATH "$PATH:/opt/google-cloud-sdk/bin/"
-COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
-RUN apt-get -qqy update && apt-get install -qqy \
-        curl \
-        python3-dev \
-        python3-crcmod \
-        python-crcmod \
-        apt-transport-https \
-        lsb-release \
-        openssh-client \
-        git \
-        make \
-        gnupg && \
-    echo 'deb http://deb.debian.org/debian/ sid main' >> /etc/apt/sources.list && \
-    export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-    echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    apt-get update && \
-    apt-get install -y google-cloud-sdk=${CLOUD_SDK_VERSION}-0 \
-    gcloud --version
-RUN apt-get install -qqy \
-        gcc \
-        python3-pip
-RUN git config --system credential.'https://source.developers.google.com'.helper gcloud.sh
-VOLUME ["/root/.config", "/root/.kube"]
+FROM gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+RUN apk --update add openjdk11
+RUN apk --update add maven
+RUN gcloud components install beta
+RUN curl -fsSL "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.0.0/docker-credential-gcr_linux_amd64-2.0.0.tar.gz" \
+| tar xz --to-stdout ./docker-credential-gcr \
+> /usr/bin/docker-credential-gcr && chmod +x /usr/bin/docker-credential-gcr
